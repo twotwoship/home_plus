@@ -16,3 +16,15 @@ void dc_motor_control(int); / int 단위 0 off 1 on
 void step_motor_control(int); / int 단위 0 ~ 100  
 알람 통제 함수  
 void alarm_control(int); / int 단위 0 off 1 on  
+
+
+| 장치 | 핀 | 설정 | AF 필요여부 |
+| --- | --- | --- | --- |
+| LED | PA5 | GPIO Output | 불필요 |
+| 부저 | PB4 |  |  |
+| DHT11 | PA8 |  |  |
+| HC-SRO4 Trigger | PB5 |  |  |
+| HC-SRO4 Echo | PA10 |  |  |
+| 스탭모터 4핀 | PC7/PB6/PA7/PA6 |  |  |
+| DC모터 | PB10 |  |  |
+| CDS | PA0 |  |  |
