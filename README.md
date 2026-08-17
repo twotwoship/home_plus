@@ -72,6 +72,7 @@ void Main(void){
 }
 
 ```
+<img width="359" height="342" alt="image" src="https://github.com/user-attachments/assets/08361597-4afd-43f5-9a47-eb376e6d686c" />
 
 
 ## 핀맵
