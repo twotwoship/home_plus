@@ -30,7 +30,8 @@ void alarm_control(int); / int 단위 0 off 1 on
 |스탭 모터 통제 함수 | 완료 | step_motor_control(100) |
 |알람 통제 함수 | 완료 | alarm_control(1) |
 
-## 검증간 사용 방법(예시)
+## 검증간 사용 코드
+
 ```c
 #include "device_driver.h"
 #include "timer.h"
@@ -46,18 +47,30 @@ static void Sys_Init(int baud)
 }
 
 void Main(void){
-    int temp;
     volatile int i;
+	int test = 1;
     Sys_Init(115200);
     printf("\n=== HOME_PLUS individual device test ===\n");
+	for (i = 0; i < 6400000; i++){ __NOP(); }
     for (;;)    {
-        for (i = 0; i < 6400000; i++){
-            __NOP();
-        }
-		temp = temp_measurement();
-        printf("temp_h = %d\n", temp);
+		for (i = 0; i < 6400000; i++){ __NOP(); }
+		led_control(test);
+		dc_motor_control(test);
+		alarm_control(test);
+		step_motor_control(100);
+		for (i = 0; i < 640000; i++){ __NOP(); }
+		printf("lumen = %d\n", lumen__measurement());
+		int temp = temp_measurement();
+		for (i = 0; i < 640000; i++){ __NOP(); }
+		printf("temp = %d\n", temp);
+		for (i = 0; i < 640000; i++){ __NOP(); }
+        printf("ultra_sonic = %d\n", ultra_sonic_measurement());
+		if(test == 1){
+			test = 0;
+		}else{ test = 1;}
     }
 }
+
 ```
 
 
