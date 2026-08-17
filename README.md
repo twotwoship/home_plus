@@ -23,7 +23,7 @@ void alarm_control(int); / int 단위 0 off 1 on
 | 함수 | 검증 | 방법 |
 | --- | --- | --- |
 | 온도 습도 측정함수 | 완료 | temp_measurement() |
-| 초음파거리 측정함수 |  |  |
+| 초음파거리 측정함수 | 완료 | ultra_sonic_measurement() |
 | 조도 측정함수 | 완료 | lumen__measurement() |
 |전등 통제 함수 | 완료 | led_control(1) |
 | DC 모터 통제 함수 | 완료 | dc_motor_control(1) |
