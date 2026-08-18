@@ -384,8 +384,12 @@ QWidget#illuminanceCard[selected=&quot;true&quot;] { border: 1px solid #2F6FED; 
            </item>
            <item>
             <widget class="QWidget" name="doorCard" native="true">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="styleSheet">
-              <string notr="true">QWidget#doorCard { background-color: #FFFFFF; border: 1px solid #D9DCE1; border-radius: 4px; }</string>
+              <string notr="true">QWidget#doorCard { background-color: #FFFFFF; border: 1px solid #D9DCE1; border-radius: 4px; }
+QWidget#doorCard[selected=&quot;true&quot;] { border: 1px solid #2F6FED; }</string>
              </property>
              <layout class="QVBoxLayout" name="doorCardLayout">
               <property name="leftMargin">
