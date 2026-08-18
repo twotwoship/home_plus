@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>860</width>
+    <height>641</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>860</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>HOMEPLUS</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow, QWidget {
+    background-color: #F5F6F7;
+    color: #1F2328;
+    font-family: &quot;Pretendard&quot;;
+    font-size: 10pt;
+}
+QWidget#headerBar {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #D9DCE1;
+}
+QLabel#appTitleLabel {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #1F2328;
+}
+QGroupBox {
+    background-color: #FFFFFF;
+    border: 1px solid #D9DCE1;
+    border-radius: 4px;
+    margin-top: 8px;
+    padding: 24px 12px 12px 12px;
+    font-weight: 600;
+}
+QGroupBox::title {
+    subcontrol-origin: padding;
+    subcontrol-position: top left;
+    left: 12px;
+    top: 6px;
+    padding: 0;
+    color: #6B7280;
+}
+QLabel {
+    background: transparent;
+    color: #1F2328;
+}
+QPushButton {
+    background-color: #FFFFFF;
+    border: 1px solid #D9DCE1;
+    border-radius: 4px;
+    padding: 6px 14px;
+    color: #1F2328;
+    min-height: 22px;
+}
+QPushButton:hover {
+    background-color: #EEF0F2;
+}
+QPushButton:checked {
+    background-color: #2F6FED;
+    border-color: #2F6FED;
+    color: #FFFFFF;
+    font-weight: 600;
+}
+QPushButton:disabled {
+    color: #A9AFB8;
+    border-color: #E3E5E8;
+}
+QComboBox, QTimeEdit {
+    background-color: #FFFFFF;
+    border: 1px solid #D9DCE1;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #1F2328;
+}
+QTabWidget::pane {
+    border: 1px solid #D9DCE1;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+    top: -1px;
+}
+QTabBar::tab {
+    background-color: #F5F6F7;
+    color: #6B7280;
+    border: 1px solid #D9DCE1;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 6px 16px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background-color: #FFFFFF;
+    color: #1F2328;
+    font-weight: 600;
+}
+QSplitter::handle {
+    background-color: #F5F6F7;
+    width: 6px;
+}
+QMenuBar, QStatusBar {
+    background-color: #F5F6F7;
+    color: #6B7280;
+    border: none;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="rootLayout" stretch="0,1">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QWidget" name="headerBar" native="true">
+      <layout class="QHBoxLayout" name="headerLayout">
+       <property name="leftMargin">
+        <number>16</number>
+       </property>
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <property name="rightMargin">
+        <number>16</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="appTitleLabel">
+         <property name="text">
+          <string>HOMEPLUS</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="headerSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QComboBox" name="portCombo">
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="refreshButton">
+         <property name="text">
+          <string>새로고침</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="connectButton">
+         <property name="text">
+          <string>연결</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="disconnectButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>해제</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="connStatusLabel">
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>● 연결 안 됨</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="bodySplitter">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="mainColumn" native="true">
+       <layout class="QVBoxLayout" name="mainColumnLayout" stretch="0,1">
+        <property name="leftMargin">
+         <number>16</number>
+        </property>
+        <property name="topMargin">
+         <number>12</number>
+        </property>
+        <property name="rightMargin">
+         <number>8</number>
+        </property>
+        <property name="bottomMargin">
+         <number>16</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="sensorGroupBox">
+          <property name="title">
+           <string>실내 환경</string>
+          </property>
+          <layout class="QHBoxLayout" name="sensorLayout">
+           <item>
+            <widget class="QWidget" name="temperatureCard" native="true">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QWidget#temperatureCard { background-color: #FFFFFF; border: 1px solid #D9DCE1; border-radius: 4px; }
+QWidget#temperatureCard[selected=&quot;true&quot;] { border: 1px solid #2F6FED; }</string>
+             </property>
+             <layout class="QVBoxLayout" name="temperatureCardLayout">
+              <property name="leftMargin">
+               <number>8</number>
+              </property>
+              <property name="topMargin">
+               <number>8</number>
+              </property>
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="temperatureTitleLabel">
+                <property name="text">
+                 <string>온도</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="temperatureValueLabel">
+                <property name="text">
+                 <string>-- ℃</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="humidityCard" native="true">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QWidget#humidityCard { background-color: #FFFFFF; border: 1px solid #D9DCE1; border-radius: 4px; }
+QWidget#humidityCard[selected=&quot;true&quot;] { border: 1px solid #2F6FED; }</string>
+             </property>
+             <layout class="QVBoxLayout" name="humidityCardLayout">
+              <property name="leftMargin">
+               <number>8</number>
+              </property>
+              <property name="topMargin">
+               <number>8</number>
+              </property>
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="humidityTitleLabel">
+                <property name="text">
+                 <string>습도</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="humidityValueLabel">
+                <property name="text">
+                 <string>-- %</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="illuminanceCard" native="true">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QWidget#illuminanceCard { background-color: #FFFFFF; border: 1px solid #D9DCE1; border-radius: 4px; }
+QWidget#illuminanceCard[selected=&quot;true&quot;] { border: 1px solid #2F6FED; }</string>
+             </property>
+             <layout class="QVBoxLayout" name="illuminanceCardLayout">
+              <property name="leftMargin">
+               <number>8</number>
+              </property>
+              <property name="topMargin">
+               <number>8</number>
+              </property>
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="illuminanceTitleLabel">
+                <property name="text">
+                 <string>조도</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="illuminanceValueLabel">
+                <property name="text">
+                 <string>-- %</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="doorCard" native="true">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QWidget#doorCard { background-color: #FFFFFF; border: 1px solid #D9DCE1; border-radius: 4px; }
+QWidget#doorCard[selected=&quot;true&quot;] { border: 1px solid #2F6FED; }</string>
+             </property>
+             <layout class="QVBoxLayout" name="doorCardLayout">
+              <property name="leftMargin">
+               <number>8</number>
+              </property>
+              <property name="topMargin">
+               <number>8</number>
+              </property>
+              <property name="rightMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="doorTitleLabel">
+                <property name="text">
+                 <string>현관문</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="doorStateLabel">
+                <property name="text">
+                 <string>--</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="detailGroupBox">
+          <property name="title">
+           <string>로그</string>
+          </property>
+          <layout class="QVBoxLayout" name="detailLayout" stretch="0,1">
+           <item>
+            <widget class="QLabel" name="chartTitleLabel">
+             <property name="styleSheet">
+              <string notr="true">color: #6B7280; font-weight: 600;</string>
+             </property>
+             <property name="text">
+              <string>센서 카드 선택 시 기록 표시</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="chartContainer" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>160</height>
+              </size>
+             </property>
+             <layout class="QVBoxLayout" name="chartContainerLayout">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="sidePanel" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>260</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>340</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <layout class="QVBoxLayout" name="sidePanelLayout" stretch="0,1">
+        <property name="leftMargin">
+         <number>8</number>
+        </property>
+        <property name="topMargin">
+         <number>12</number>
+        </property>
+        <property name="rightMargin">
+         <number>16</number>
+        </property>
+        <property name="bottomMargin">
+         <number>16</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="controlGroupBox">
+          <property name="title">
+           <string>장치 제어</string>
+          </property>
+          <layout class="QVBoxLayout" name="controlVLayout">
+           <item>
+            <layout class="QHBoxLayout" name="ledRow">
+             <item>
+              <widget class="QLabel" name="ledLabel">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>전등</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ledOnButton">
+               <property name="text">
+                <string>ON</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">ledButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ledOffButton">
+               <property name="text">
+                <string>OFF</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">ledButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="dehumidifierRow">
+             <item>
+              <widget class="QLabel" name="dehumidifierLabel">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>제습</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="dehumidifierOnButton">
+               <property name="text">
+                <string>ON</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">dehumidifierButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="dehumidifierOffButton">
+               <property name="text">
+                <string>OFF</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">dehumidifierButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="windowLabel">
+             <property name="text">
+              <string>창문</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="windowGridLayout">
+             <item row="0" column="0">
+              <widget class="QPushButton" name="windowCloseButton">
+               <property name="text">
+                <string>닫기</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">windowButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="window25Button">
+               <property name="text">
+                <string>25%</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">windowButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="window50Button">
+               <property name="text">
+                <string>50%</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">windowButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="window75Button">
+               <property name="text">
+                <string>75%</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">windowButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QPushButton" name="window100Button">
+               <property name="text">
+                <string>100%</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">windowButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="alarmGroupBox">
+          <property name="title">
+           <string>알람</string>
+          </property>
+          <layout class="QVBoxLayout" name="alarmLayout">
+           <item>
+            <widget class="QTimeEdit" name="alarmTimeEdit">
+             <property name="displayFormat">
+              <string>HH:mm</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>false</bool>
+             </property>
+             <property name="time">
+              <time>
+               <hour>7</hour>
+               <minute>30</minute>
+               <second>0</second>
+              </time>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="alarmButtonLayout">
+             <item>
+              <widget class="QPushButton" name="alarmSetButton">
+               <property name="text">
+                <string>설정</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="alarmClearButton">
+               <property name="text">
+                <string>해제</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QListWidget" name="alarmListWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>860</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="windowButtonGroup"/>
+  <buttongroup name="ledButtonGroup"/>
+  <buttongroup name="dehumidifierButtonGroup"/>
+ </buttongroups>
+</ui>
