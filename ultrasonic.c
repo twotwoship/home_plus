@@ -39,7 +39,7 @@ void Ultrasonic_Init(void)
 	Macro_Write_Block(GPIOA->PUPDR, 0x3, 0x0, 20);
 
 	TIM1->CR1 = 0;
-	TIM1->PSC = (TIMXCLK  / 1000000U) - 1U;
+	TIM1->PSC = (TIM1CLK / 1000000U) - 1U;
 	TIM1->ARR = 0xffffU;
 	TIM1->CCMR2 = (TIM1->CCMR2 & ~0x3U) | 0x1U;
 	TIM1->CCER &= ~((1U << 8) | (1U << 9) | (1U << 11));

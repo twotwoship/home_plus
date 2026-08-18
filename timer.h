@@ -4,10 +4,11 @@
 #include "stm32f4xx.h"
 #include <stdint.h>
 
-uint8_t  test8;
-uint16_t test16;
-uint32_t test32;
-uint64_t test64;
+
+extern uint8_t  test8;
+extern uint16_t test16;
+extern uint32_t test32;
+extern uint64_t test64;
 
 void Sensor_Timer_Init(void);
 uint32_t Timer2_Micros(void);

@@ -2,7 +2,8 @@
 #define HCLK	SYSCLK
 #define PCLK2	HCLK
 #define PCLK1	HCLK/2
-#define TIMXCLK ((HCLK == PCLK1)?(PCLK1):(PCLK1*2))
+#define TIMXCLK ((HCLK == PCLK1)?(PCLK1):(PCLK1*2U))
+#define TIM1CLK PCLK2
 
 #define RAM_START	0x20000000
 #define RAM_END		0x20020000

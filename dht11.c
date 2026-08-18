@@ -1,6 +1,8 @@
 #include "device_driver.h"
 #include "timer.h"
 #include "dht11.h"
+#include "sensor_control.h"
+
 
 /* DHT11 DATA: NUCLEO D7 = PA8 = EXTI8 */
 #define DHT_PIN              8U
@@ -56,12 +58,13 @@ static void DHT_EXTI_Disable(void)
 
 static int DHT_Timeout_Error(DHT_State state)
 {
+	/* find error change debug number*/
 	switch (state) {
 	case DHT_WAIT_RESPONSE_LOW:  return -1;
-	case DHT_WAIT_RESPONSE_HIGH: return -2;
-	case DHT_WAIT_FIRST_BIT_LOW: return -3;
-	case DHT_WAIT_BIT_HIGH:      return -4;
-	case DHT_WAIT_BIT_LOW:       return -5;
+	case DHT_WAIT_RESPONSE_HIGH: return -1;
+	case DHT_WAIT_FIRST_BIT_LOW: return -1;
+	case DHT_WAIT_BIT_HIGH:      return -1;
+	case DHT_WAIT_BIT_LOW:       return -1;
 	default:                     return -1;
 	}
 }
@@ -134,12 +137,12 @@ int temp_measurement(void)
 
 	for (i = 0U; i < 5U; ++i) data[i] = dht_data[i];
 	checksum = (unsigned char)(data[0] + data[1] + data[2] + data[3]);
-	if (checksum != data[4]) return -6;
+	if (checksum != data[4]) return -1;		/* find error change debug number*/
 
 	humidity_x10 = (int)data[0] * 10 + data[1];
 	temperature_x10 = (int)(data[2] & 0x7fU) * 10 + data[3];
 	if (data[2] & 0x80U) temperature_x10 = -temperature_x10;
-	if (temperature_x10 < 0) return -7;
+	if (temperature_x10 < 0) return -1;		/* find error change debug number*/
 
 	return temperature_x10 * 1000 + humidity_x10;
 }

@@ -19,6 +19,9 @@ extern char Uart1_Get_Char(void);
 extern char Uart1_Get_Pressed(void);
 extern void Uart2_RX_Interrupt_Enable(int en);
 
+extern void Uart2_Rx_Enqueue(char data);
+extern int Uart2_Rx_GetChar(char *p_data);
+
 // SysTick.c
 
 extern void SysTick_Run(unsigned int msec);
@@ -32,6 +35,7 @@ extern void SysTick_Stop(void);
 extern void LED_Init(void);
 extern void LED_On(void);
 extern void LED_Off(void);
+extern void LED_Display(int on);
 
 // Clock.c
 

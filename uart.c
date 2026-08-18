@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "queue.h"
+
+static queue_t uart2_rx_queue;
+
 void Uart2_Init(int baud)
 {
   double div;
@@ -33,6 +37,11 @@ void Uart2_Init(int baud)
   USART2->CR1 = (1<<13)|(0<<12)|(0<<10)|(1<<3)|(1<<2);
   USART2->CR2 = 0<<12;
   USART2->CR3 = 0;
+
+  //큐 초기화
+  queue_init(&uart2_rx_queue);
+  //rx인터럽트 사용
+  Uart2_RX_Interrupt_Enable(1);
 }
 
 void Uart2_RX_Interrupt_Enable(int en)
@@ -48,4 +57,19 @@ void Uart2_RX_Interrupt_Enable(int en)
     Macro_Clear_Bit(USART2->CR1, 5);
     NVIC_DisableIRQ(38);
   }
+}
+
+void Uart2_Rx_Enqueue(char data)
+{
+    queue_enqueue(&uart2_rx_queue, data);
+}
+
+int Uart2_Rx_GetChar(char *p_data)
+{
+    if (queue_dequeue(&uart2_rx_queue, p_data) == QUEUE_OK)
+    {
+        return 1;
+    }
+
+    return 0;
 }
