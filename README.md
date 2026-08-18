@@ -1,6 +1,8 @@
 # home_plus
 
-M4 Nucleo 보드와 Windows용 Qt 애플리케이션을 UART로 연결하여 실내 환경을 확인하고 조명, 모터, 알람을 제어하는 홈 IoT 월패드 프로젝트입니다.
+Qt의 QSerialPort를 이용하여 M4와 UART통신을 구현한다.
+
+주요 기능은 다음과 같다.
 
 ## 주요 기능
 
