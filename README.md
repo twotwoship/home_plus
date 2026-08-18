@@ -2,30 +2,27 @@
 
 Qt의 QSerialPort를 이용하여 M4와 UART통신을 구현한다.
 
-주요 기능은 다음과 같다.
-
 ## 주요 기능
+● UART 포트 초기화 및 연결
+● M4 → Qt 센서 데이터 수신
+● Qt → M4 제어 명령 송신
+ ●5바이트 데이터 프레임 파싱
+● M4 통신 상태 확인
 
-- 온도·습도 측정 및 Qt 화면 표시
-- 초음파센서를 이용한 거리 측정과 현관문 상태 확인
-- 조도 측정 및 Qt 화면 표시
-- Qt에서 LED 조명 ON/OFF
-- Qt에서 DC모터 ON/OFF
-- 스테핑모터 PWM 제어
-- 설정한 시각에 LED와 부저를 동작시키는 알람
-- M4와 Qt 간 UART 통신
+## UART 설정
 
-## 개발 환경
-
-| 구분 | 환경 |
+| 항목 | 설정 |
 | --- | --- |
-| MCU | M4 Nucleo 보드 (정확한 모델명 TBD) |
-| PC 운영체제 | Windows 11 64-bit |
-| GUI | Qt Creator 6.11.1 |
-| MCU-PC 통신 | UART |
-| 펌웨어 개발환경 | TBD |
+| Port | M4 Nucleo 보드 (정확한 모델명 TBD) |
+| Baud Rate | 115200 |
+| Data Bits | 8 |
+| Parity | None |
+| Stop Bits | 1 |
+| Flow Control | None |
 
-## 시스템 구성
+## 통신 프로토콜
+Qt와 M4는 5바이트 고정 프레임을 사용한다.
+[Command 1Byte][Value 4Byte]
 
 ```mermaid
 flowchart LR
@@ -35,16 +32,18 @@ flowchart LR
     M4 --> Outputs["DC모터·스테핑모터·LED·부저"]
 ```
 
-## 팀원 및 역할
+## 주요 변수
 
-이름과 GitHub 주소는 팀 구성 확정 후 작성합니다.
-
-| 구분 | 이름 | GitHub 주소 | 담당 분야 |
-| --- | --- | --- | --- |
-| 팀원 1 | 이양배 | https://github.com/twotwoship | M4 센서·입력 M4 출력·액추에이터 |
-| 팀원 2 | 이호윤 | https://github.com/nooyoh | Qt 애플리케이션·UI |
-| 팀원 3 | 한수근 | https://github.com/usernamesg | M4 UART·시스템 통합·테스트 |
-| 팀원 4 | 한소영 | https://github.com/hsy1030h-wq | Qt UART·시스템 통합·테스트 |
+| 변수 | 역할 |
+| :--- | :--- |
+| `m_serialPort` | UART 통신을 담당하는 `QSerialPort` 객체 |
+| `m_rxBuffer` | 수신 데이터를 임시 저장하는 버퍼 |
+| `m_latestTemperature` | 최신 온도값 |
+| `m_latestHumidity` | 최신 습도값 |
+| `m_latestDistance` | 최신 거리값 |
+| `m_latestIlluminance` | 최신 조도값 |
+| `m_isM4Connected` | M4 통신 상태 |
+| `m_m4WatchdogTimer` | M4 응답 감시 타이머 |
 
 ### 팀원 1 — M4 센서·입력  M4 출력·액추에이터
 
