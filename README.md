@@ -13,7 +13,7 @@ Qt의 QSerialPort를 이용하여 M4와 UART통신을 구현한다.
 
 | 항목 | 설정 |
 | --- | --- |
-| Port | M4 Nucleo 보드 (정확한 모델명 TBD) |
+| Port | COM3 |
 | Baud Rate | 115200 |
 | Data Bits | 8 |
 | Parity | None |
@@ -24,13 +24,22 @@ Qt의 QSerialPort를 이용하여 M4와 UART통신을 구현한다.
 Qt와 M4는 5바이트 고정 프레임을 사용한다.
 [Command 1Byte][Value 4Byte]
 
-```mermaid
-flowchart LR
-    Sensors["온습도·초음파·조도 센서"] --> M4["M4 Nucleo"]
-    M4 <--> |"UART 115200 bps"| Qt["Windows Qt 애플리케이션"]
-    Qt --> User["사용자 모니터링·제어"]
-    M4 --> Outputs["DC모터·스테핑모터·LED·부저"]
-```
+### 1. M4 ➔ Qt (데이터 송신)
+| Command | 의미 | 예시 |
+| :---: | :--- | :--- |
+| `T` | 온도 | `T0235` ➔ 23.5℃ |
+| `H` | 습도 | `H0678` ➔ 67.8% |
+| `U` | 거리 | `U0125` ➔ 125cm |
+| `B` | 조도 | `B0075` ➔ 75 |
+
+### 2. Qt ➔ M4 (제어 명령 수신)
+
+| Command | 기능 | 예시 |
+| :---: | :--- | :--- |
+| `L` | LED 제어 | `L0001` ➔ ON |
+| `D` | DC 모터 제어 | `D0000` ➔ OFF |
+| `S` | 스테핑 모터 제어 | `S0090` ➔ 90° |
+| `A` | 알람 제어 | `A0001` ➔ ON |
 
 ## 주요 변수
 
@@ -45,28 +54,18 @@ flowchart LR
 | `m_isM4Connected` | M4 통신 상태 |
 | `m_m4WatchdogTimer` | M4 응답 감시 타이머 |
 
-### 팀원 1 — M4 센서·입력  M4 출력·액추에이터
+## 주요 함수
 
-담당 업무:
-
-- 온도·습도 센서 측정
-- 초음파 거리 측정
-- 조도센서 ADC 측정
-- 센서값 보정 및 유효 범위 처리
-- 센서 측정 주기 관리
-- UART 모듈에 전달할 센서 데이터 제공
-- 센서 단독 테스트 및 핀 연결표 작성
-- DC모터 ON/OFF 제어
-- 스테핑모터 방향·속도·스텝 제어
-- LED ON/OFF 제어
-- 부저 및 알람 패턴 제어
-- 타이머·PWM 설정
-- 비정상 명령과 통신 장애 발생 시 안전 정지
-- 장치 단독 테스트 및 모터 드라이버 회로 정리
-
-- [ ] 센서값 단위, 범위, 정밀도 및 전송 주기
-- [ ] 스테핑모터 데이터의 의미(스텝 수·각도·속도·목표 위치)
-- [ ] 스테핑모터 방향 전달 방식과 원점·리미트 스위치 사용 여부
+| 함수 | 역할 |
+| :--- | :--- |
+| `initSerialPort()` | UART 포트 초기화 및 연결 |
+| `closeSerialPort()` | UART 포트 종료 |
+| `handleReadyRead()` | 수신 데이터 처리 및 5바이트 프레임 파싱 |
+| `sendLedCommand()` | LED 제어 명령 송신 |
+| `sendDcMotorCommand()` | DC 모터 제어 명령 송신 |
+| `sendStepperCommand()` | 스테핑 모터 제어 명령 송신 |
+| `sendAlarmCommand()` | 알람 제어 명령 송신 |
+| `onM4WatchdogTimeout()` | M4 응답 Timeout 처리 |
 
 
 ### 팀원 2 — Qt 애플리케이션·UI
