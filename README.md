@@ -79,7 +79,7 @@ void Main(void){
 
 | 장치 | 핀 | 설정 | AF 필요여부 |
 | --- | --- | --- | --- |
-| LED | PA3 | GPIO Output | 불필요 |
+| LED | PA4 | GPIO Output | 불필요 |
 | 부저 | PB4 | TIM3_CH1_PWM | AF2 |
 | DHT11 | PA8 | GPIO Input/Output | 불필요 |
 | HC-SRO4 Trigger | PB5 | GPIO Output | 불필요 |
