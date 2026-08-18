@@ -220,7 +220,7 @@ test: LED 명령 수신 테스트 추가
 ## 문서화 원칙
 
 - 모든 소스 파일 상단에 파일의 역할과 주요 기능을 기록합니다.
-- 통신 규칙은 `protocol.md`, 핀 배치는 `pinmap.md`에서 관리할 예정입니다.
+- 통신 규칙은 `protocol.md`, 핀 배치는 `sensors-act readme.md`에서 관리할 예정입니다.
 - 프로토콜이나 공용 인터페이스를 변경하면 구현 코드와 문서를 같은 Pull Request에서 함께 수정합니다.
 
 ## License
