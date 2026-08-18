@@ -21,7 +21,7 @@ Qt의 QSerialPort를 이용하여 M4와 UART통신을 구현한다.
 | Flow Control | None |
 
 ## 통신 프로토콜
-Qt와 M4는 5바이트 고정 프레임을 사용한다.
+Qt와 M4는 5바이트 고정 프레임을 사용한다.  
 [Command 1Byte][Value 4Byte]
 
 ### 1. M4 ➔ Qt (데이터 송신)
