@@ -17,6 +17,33 @@ extern volatile int DMA1_STREAM6_DONE;
 #define UART_TX_BUFFER_SIZE    64
 static char uart_tx_buffer[UART_TX_BUFFER_SIZE];
 
+
+//DMA 전송
+static void UART2_DMA_Send(const char *buffer, int length)
+{
+    if (length <= 0)
+        return;
+
+    if (!DMA1_STREAM6_DONE)
+        return;
+
+    Macro_Set_Bit(USART2->CR3, 7);
+
+    DMA1_STREAM6_DONE = 0;
+
+    DMA1_Stream6_USART2_TX_Satrt(
+        (void *)buffer,
+        length
+    );
+}
+
+//
+static void Uart2_Wait_for_TX_Complete(void)
+//UART마지막 글자가 DR에 존재, 버퍼는 빈 상태에서 버퍼의 인터럽트를 읽고 DR의 값을 DMA가 자신의 글로 덮어쓰는 경우 방지
+{
+    while(!Macro_Check_Bit_Set(USART2->SR, 6));
+}
+
 //함수 포인터
 static void (*func[]) (int)={
     led_control,
@@ -75,9 +102,8 @@ static void Command_Receive_Process(void)
             continue;
         }
 
-        /*
-         * 명령어 시작
-         */
+        
+        // 명령어 시작        
         if (data == 'L' ||
             data == 'D' ||
             data == 'S' ||
@@ -89,14 +115,10 @@ static void Command_Receive_Process(void)
             continue;
         }
 
-        /*
-         * 숫자 입력
-         */
+        //숫자 입력
         if (data >= '0' && data <= '9')
         {
-            /*
-             * 명령어가 먼저 들어오지 않았다면 무시
-             */
+            //명령어 확인
             if (command == 0)
             {
                 continue;
@@ -105,16 +127,11 @@ static void Command_Receive_Process(void)
             value = value * 10 + (data - '0');
             digit_count++;
 
-            /*
-             * 4자리 숫자가 완성되면 실행
-             */
+           //4자리 확인
             if (digit_count == 4)
             {
                 Command_Process(command, value);
-
-                /*
-                 * 다음 명령 준비
-                 */
+                //초기화
                 command = 0;
                 value = 0;
                 digit_count = 0;
@@ -123,30 +140,132 @@ static void Command_Receive_Process(void)
             continue;
         }
 
-        /*
-         * 그 외의 잘못된 문자가 들어오면 현재 명령 폐기
-         */
+        //그 외의 잘못된 문자가 들어오면 현재 명령 폐기
         command = 0;
         value = 0;
-        digit_count = 0;
-    
+        digit_count = 0;    
     }
 }
 
-static void Uart2_Wait_for_TX_Complete(void)
-//UART마지막 글자가 DR에 존재, 버퍼는 빈 상태에서 버퍼의 인터럽트를 읽고 DR의 값을 DMA가 자신의 글로 덮어쓰는 경우 방지
+#define SENSOR_ERR_DHT    64U   // 8진수 4 = 10진수 4
+#define SENSOR_ERR_LUMEN  8U   // 8진수 2 = 10진수 2
+#define SENSOR_ERR_ULTRA  1U   // 8진수 1 = 10진수 1
+// E0001 초음파
+// E0010 조도센서 에러
+// E0100 온습도 에러
+
+// 센서 측정 및 프레임 생성
+static int Sensor_Data_Update(void)
 {
-    while(!Macro_Check_Bit_Set(USART2->SR, 6));
+    static unsigned int led = 0;
+    static unsigned int led_count = 0;
+    static unsigned int error = 0;
+
+    int lumen = 0;
+    int ultra_sonic = 0;
+    int dht_value = 0;
+
+    lumen = lumen__measurement();
+    ultra_sonic = ultra_sonic_measurement();
+
+    if (lumen == 0)
+    {
+        error |= SENSOR_ERR_LUMEN;
+    }
+    else
+    {
+        error &= ~SENSOR_ERR_LUMEN;
+    }
+
+    if (ultra_sonic == -1)
+    {
+        error |= SENSOR_ERR_ULTRA;
+    }
+    else
+    {
+        error &= ~SENSOR_ERR_ULTRA;
+    }
+
+    led_count++;
+
+    /* DHT11: 1초마다 */
+    if (led_count >= 2)
+    {
+        led_count = 0;
+
+        led ^= 0x1;
+        LED_Display(led);
+
+        dht_value = temp_measurement();
+
+        if (dht_value == -1)
+        {
+            error |= SENSOR_ERR_DHT;
+        }
+        else
+        {
+            error &= ~SENSOR_ERR_DHT;
+        }
+
+        /*
+         * 1초 주기:
+         * 오류가 하나라도 있으면 오류 프레임 전송
+         */
+        if (error != 0)
+        {
+            return snprintf(
+                uart_tx_buffer,
+                sizeof(uart_tx_buffer),
+                "E%04o\n\r",
+                error
+            );
+        }
+
+        /*
+         * 모든 센서가 정상이면
+         * 1초 주기 전체 센서 데이터 전송
+         */
+        {
+            int temp = dht_value / 1000;
+            int hum  = dht_value % 1000;
+
+            return snprintf(
+                uart_tx_buffer,
+                sizeof(uart_tx_buffer),
+                "T%04dH%04dU%04dB%04d\n\r",
+                temp,
+                hum,
+                ultra_sonic,
+                lumen
+            );
+        }
+    }
+
+    /*
+     * 500ms 주기:
+     * 이전에 저장된 오류가 있으면 전송하지 않음
+     */
+    if (error != 0)
+    {
+        return 0;
+    }
+
+    /*
+     * 모든 센서가 정상일 때만
+     * 500ms 데이터 전송
+     */
+    return snprintf(
+        uart_tx_buffer,
+        sizeof(uart_tx_buffer),
+        "U%04dB%04d\n\r",
+        ultra_sonic,
+        lumen
+    );
 }
 
 #if 1
 void Main(void)
-{
-    int lumen = 0;
-    int temp = 0;
-    int hum = 0;
-    int ultra_sonic = 0;
-    
+{    
     Sys_Init(115200);
     Sensor_Control_Init();
 
@@ -158,92 +277,16 @@ void Main(void)
     for (;;)
     {   
         int tx_len = 0;
+
         Command_Receive_Process();
-        if(TIM5_Expired)
+
+        if (TIM5_Expired)
         {
-            static unsigned int led = 0;
-            static unsigned int led_count = 0;
-
             TIM5_Expired = 0;
-            
-            lumen = lumen__measurement();
 
-            led_count++;            
-            
-            ultra_sonic = ultra_sonic_measurement();
-
-            /* DHT11: 1초마다 */
-            if (led_count >= 2)
-            {                
-                led_count = 0;
-                
-                led ^= 0x1;
-                LED_Display(led);
-
-                /*
-                * temp_measurement()
-                * return temperature_x10 * 1000 + humidity_x10;
-                */
-               
-                int dht_value = temp_measurement();
-
-                if (dht_value >= 0)
-                {
-                    temp = dht_value / 1000;
-                    hum  = dht_value % 1000;
-                    
-                    tx_len = snprintf(
-                    uart_tx_buffer,
-                    sizeof(uart_tx_buffer),
-                    "T%04dH%04dU%04dB%04d\n\r",
-                    temp,
-                    hum,
-                    ultra_sonic,
-                    lumen
-                    );
-                }
-                else
-                {
-                    printf("DHT11 ERROR\n");
-                }
-                
-            }
-            else
-            {
-                if(lumen != -1 && ultra_sonic != -1)
-                {
-                    tx_len = snprintf(
-                    uart_tx_buffer,
-                    sizeof(uart_tx_buffer),
-                    "U%04dB%04d\n\r",                
-                    ultra_sonic,
-                    lumen);
-                }
-                else
-                {
-                    if (lumen == -1)
-                    {
-                        printf("lumen ERROR\n");
-                    }
-
-                    if (ultra_sonic == -1)
-                    {
-                        printf("ultra_sonic ERROR\n");
-                    }
-                }
-            }
-            //printf("%s\n",uart_tx_buffer);
-            /*
-            * 이전 DMA 전송이 끝난 경우에만 새로운 전송 시작
-            */
-            if (DMA1_STREAM6_DONE && tx_len != 0)
-            {                
-                Macro_Set_Bit(USART2->CR3, 7);                
-
-                DMA1_STREAM6_DONE = 0;
-                DMA1_Stream6_USART2_TX_Satrt((void *)uart_tx_buffer, tx_len);
-            }
-        }        
+            tx_len = Sensor_Data_Update();
+            UART2_DMA_Send(uart_tx_buffer, tx_len);
+        }      
     }        
 }
 
