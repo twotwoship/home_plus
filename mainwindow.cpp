@@ -351,6 +351,7 @@ void MainWindow::onAlarmCheckTimeout()
         if (alarmTime.hour() == now.hour() && alarmTime.minute() == now.minute()) {
             ringingAlarmTime = alarmTime;
             sendCommand("A0001");
+            ui->ledOnButton->click(); // 전등 ON 버튼을 실제로 눌러, 클릭 시그널 경로 그대로 L0001도 전송
             alarmOffTimer->start(alarmDurationMs);
             refreshAlarmListWidget();
             break;
