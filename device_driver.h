@@ -73,6 +73,6 @@ extern void SPI1_SC16IS752_Write_Reg(unsigned int addr, unsigned int data);
 extern void SPI1_SC16IS752_Config_GPIO(unsigned int config);
 extern void SPI1_SC16IS752_Write_GPIO(unsigned int data);
 
-// Sensor/actuator public API
+// 센서 API 모음집
 
 #include "sensor_control.h"
