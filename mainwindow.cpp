@@ -11,7 +11,6 @@
 #include <QDebug> // [UART] 연결/프레임 파싱 로그 출력용
 #include <algorithm>
 
-// UI 초기화 및 시리얼/알람 관련 시그널-슬롯 연결
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -28,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // 카드에 마우스 클릭을 감지하도록 이벤트 필터 설치
+    // 카드 이벤트 필터 설치(클릭 감지용)
     ui->temperatureCard->installEventFilter(this);
     ui->humidityCard->installEventFilter(this);
     ui->illuminanceCard->installEventFilter(this);
@@ -47,8 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     watchdogTimer->setInterval(watchdogIntervalMs);
     connect(watchdogTimer, &QTimer::timeout, this, &MainWindow::onWatchdogTimeout);
 
-    // 전등/제습/창문 제어 버튼 - 클릭 시 대응하는 UART 명령 전송
-    // [UART] sendCommand()에 프레임 문자열을 직접 넘기던 방식 대신, 의미 단위 함수(sendXxxCommand)를 통해 전송
+    // 전등|제습|창문 제어 버튼 - 클릭 시 대응하는 UART 명령 전송
     connect(ui->ledOnButton, &QPushButton::clicked, this, [this] { sendLedCommand(true); });
     connect(ui->ledOffButton, &QPushButton::clicked, this, [this] { sendLedCommand(false); });
     connect(ui->dehumidifierOnButton, &QPushButton::clicked, this, [this] { sendDcMotorCommand(true); });
@@ -63,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->alarmSetButton, &QPushButton::clicked, this, &MainWindow::onAlarmSetClicked);
     connect(ui->alarmClearButton, &QPushButton::clicked, this, &MainWindow::onAlarmClearClicked);
 
-    // 알람 시각 도달 여부를 1초마다 확인하는 타이머 (상시 동작)
+    // 알람 시각 도달 여부를 1초마다 확인하는 타이머
     alarmCheckTimer->setInterval(alarmCheckIntervalMs);
     connect(alarmCheckTimer, &QTimer::timeout, this, &MainWindow::onAlarmCheckTimeout);
     alarmCheckTimer->start();
@@ -75,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 로그 영역 그래프 초기화 (X축: 실제 시각, Y축: 선택된 센서에 맞춰 갱신)
     chart->addSeries(chartSeries);
     chart->legend()->hide();
-    chartSeries->setPointsVisible(true); // 로그가 1개뿐일 때도 점으로 보이도록
+    chartSeries->setPointsVisible(true);
     chartAxisX->setFormat("HH:mm");
     chart->addAxis(chartAxisX, Qt::AlignBottom);
     chart->addAxis(chartAxisY, Qt::AlignLeft);
@@ -87,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     chartView->setVisible(false);
     ui->chartContainerLayout->addWidget(chartView);
 
-    // 카드 선택은 됐지만 아직 기록이 없을 때 그래프 대신 보여줄 안내 라벨
+    // 카드 선택 시 데이터 없을 때
     chartEmptyLabel = new QLabel(QStringLiteral("표시할 기록 없음"), ui->chartContainer);
     chartEmptyLabel->setAlignment(Qt::AlignCenter);
     chartEmptyLabel->setVisible(false);
@@ -104,7 +102,6 @@ MainWindow::MainWindow(QWidget *parent)
     chartSampleTimer->start();
 
     // [UART] 5초 주기 센서값 반영 타이머 - 연결 여부와 무관하게 앱 시작 시부터 상시 동작
-    // (실제 반영 여부는 onSensorFlushTimeout 내부에서 linkConfirmed로 판단)
     connect(sensorFlushTimer, &QTimer::timeout, this, &MainWindow::onSensorFlushTimeout);
     sensorFlushTimer->start(sensorFlushIntervalMs);
 
@@ -122,7 +119,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-// 온도/습도/조도/현관문 카드 클릭을 감지해 해당 카드를 토글
+// 온도|습도|조도|현관문 카드 클릭을 감지해 해당 카드를 토글
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonRelease) {
@@ -217,7 +214,6 @@ void MainWindow::onDisconnectClicked()
 }
 
 // [UART] 지정한 포트를 115200bps 8N1로 열고, 성공 시 워치독을 시작
-// (버튼 슬롯과 외부 코드 양쪽에서 재사용 가능하도록 public slot으로 공개)
 void MainWindow::initSerialPort(const QString &portName)
 {
     if (serialPort->isOpen())
@@ -272,16 +268,14 @@ void MainWindow::onSerialReadyRead()
     rxBuffer.append(serialPort->readAll());
 
     while (!rxBuffer.isEmpty()) {
-        // 앞바이트가 유효한 명령 문자가 아니면 5byte를 통째로 버리지 않고
-        // 1byte만 버려서 재동기화한다. 연결 초반 노이즈/부팅 메시지 등으로
-        // 프레임 경계가 한 번 밀리면 이후 모든 프레임이 계속 잘못 해석되는 문제를 방지.
+        // 유효 명령 문자가 아닐 시 1byte 버려서 재동기화
         if (!isFrameCommandChar(rxBuffer.at(0))) {
             rxBuffer.remove(0, 1);
             continue;
         }
 
         if (rxBuffer.length() < 5)
-            break; // 명령 문자는 맞지만 데이터 4byte가 아직 다 안 들어옴 - 다음 수신을 기다림
+            break; // 명령 문자는 나머지 byte가 안들어옴
 
         const QByteArray frame = rxBuffer.left(5);
         rxBuffer.remove(0, 5);
@@ -301,7 +295,7 @@ bool MainWindow::isFrameCommandChar(char cmd) const
     }
 }
 
-// [UART] 5바이트 프레임 1개를 해석한다.
+// [UART] 5바이트 프레임 1개를 해석
 // - T/H/B(온도·습도·조도): 값만 저장해두고, 실제 화면 반영은 5초 주기 onSensorFlushTimeout()에서 처리
 // - U(거리/현관문): 보안과 관련된 값이라 지연 없이 즉시 화면에 반영
 // - L/D/S/A: 보드가 명령을 받았다는 피드백(에코)이므로 loopbackStatusReceived로 즉시 알림
@@ -313,7 +307,7 @@ void MainWindow::processIncomingFrame(const QByteArray &frame)
     if (!conversionOk)
         return;
 
-    // 포트는 열려 있었지만 이번이 첫 유효 프레임이라면, 비로소 "정상 연결"로 간주
+    // 포트는 열려 있었지만 이번이 첫 유효 프레임이라면 정상 연결
     if (!linkConfirmed) {
         linkConfirmed = true;
         qDebug() << "상태 알림: M4 보드 정상 연결 상태 감지";
@@ -341,7 +335,7 @@ void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
     if (error == QSerialPort::NoError)
         return;
 
-    // 케이블 분리 등 물리적 단절 - OS가 즉시 알려주는 경우
+    // 물리적 단절(선 끊김)
     if (error == QSerialPort::ResourceError || error == QSerialPort::DeviceNotFoundError)
         teardownConnection("장치가 분리됨");
 }
@@ -352,7 +346,7 @@ void MainWindow::onWatchdogTimeout()
     if (!serialPort->isOpen())
         return;
 
-    // 케이블은 연결되어 있지만 일정 시간 데이터 수신이 없는 경우 - 논리적 단절로 판단
+    // 케이블은 연결되어 있지만 일정 시간 데이터 수신이 없는 경우 -> 논리적 단절로 판단
     if (lastRxTimer.elapsed() > linkTimeoutMs)
         teardownConnection("응답 없음 (타임아웃)");
 }
@@ -373,7 +367,7 @@ void MainWindow::teardownConnection(const QString &reason)
     emit m4ConnectionStatusChanged(false); // [UART]
 }
 
-// 실내 환경 카드를 프로그램 시작 시와 동일한 초기 상태(--)로 되돌림
+// 시리얼 해제 후 재 연결시 리셋
 void MainWindow::resetSensorLabels()
 {
     ui->temperatureValueLabel->setText("-- ℃");
@@ -382,7 +376,7 @@ void MainWindow::resetSensorLabels()
     ui->doorStateLabel->setText("--");
 }
 
-// 온도 업데이트 (실내 환경 카드는 즉시 반영, 그래프 기록용 최신값도 함께 저장)
+// 온도 업데이트
 void MainWindow::updateTemperature(double celsiusValue)
 {
     ui->temperatureValueLabel->setText(QString::number(celsiusValue, 'f', 1) + " ℃");
@@ -390,7 +384,7 @@ void MainWindow::updateTemperature(double celsiusValue)
     latestTemperature = celsiusValue;
     hasTemperature = true;
 
-    // 첫 수신값은 다음 1분 주기를 기다리지 않고 바로 기록
+    // 첫 수신값은 바로 기록
     if (isFirstSample) {
         recordChartSample(temperatureHistory, true, celsiusValue, QDateTime::currentDateTime().toMSecsSinceEpoch());
         if (selectedSensor == SensorType::Temperature)
@@ -559,7 +553,7 @@ void MainWindow::recordChartSample(QVector<QPointF> &history, bool hasValue, dou
 // 현관문 카드가 선택된 경우엔 그래프 대신 출입 로그 목록을 보여준다.
 void MainWindow::refreshChartDisplay()
 {
-    // 현관문 선택 시엔 그래프/안내 라벨을 숨기고 출입 로그 목록만 표시
+    // 현관문 선택 시 출입 로그 목록만 표시
     if (selectedSensor == SensorType::Door) {
         chartView->setVisible(false);
         chartEmptyLabel->setVisible(false);
@@ -588,7 +582,7 @@ void MainWindow::refreshChartDisplay()
         history = &illuminanceHistory;
         chartAxisY->setRange(illuminanceAxisMin, illuminanceAxisMax);
         break;
-    case SensorType::Door: // 위에서 이미 처리됨
+    case SensorType::Door:
     case SensorType::None:
         return;
     }
@@ -610,9 +604,7 @@ void MainWindow::refreshChartDisplay()
     QDateTime startTime = QDateTime::fromMSecsSinceEpoch(qint64(history->first().x()));
     QDateTime endTime = QDateTime::fromMSecsSinceEpoch(qint64(history->last().x()));
 
-    // 눈금 개수를 실제 로그 개수에 맞춰 최대 5개로 제한.
-    // 로그가 1개뿐이면 점 하나만 보이면 되므로 눈금 2개(시작/끝)만 쓰고,
-    // 축 범위도 그 점을 가운데 두는 정도로만 살짝 벌려서 5개 눈금이 전부 같은 시각으로 겹쳐 보이는 문제를 막는다.
+    // 눈금 개수를 실제 로그 개수에 맞춰 최대 5개로 제한
     if (history->size() == 1) {
         startTime = startTime.addSecs(-30);
         endTime = endTime.addSecs(30);
@@ -702,3 +694,4 @@ void MainWindow::setConnStatusText(const QString &text, bool connected)
     ui->connStatusLabel->setText(
         QStringLiteral("<span style=\"color:%1;\">●</span> %2").arg(dotColor, text.toHtmlEscaped()));
 }
+
